@@ -76,10 +76,6 @@ let assignment_shenanigans = p "=" (* stub *)
 (* "You... do realize that the type system is meant to constrain values, right?"
  * "No. No, that doesn't sound right." *)
 
-(* magic *)
-type fix 'f = Fix of 'f (fix 'f)
-let unfix (Fix x) = x
-
 type suffix_operator_identifier_name_type = SuffixParen | SuffixNamed of string
 DERIVE_BATTERIES suffix_operator_identifier_name_type SuffixParen SuffixNamed(name)
 let suffix_operator_identifier_name_converter name = SuffixNamed name
@@ -92,8 +88,12 @@ DERIVE_BATTERIES let_expression_binding_type ('expr) LetSimple(name expr) LetFun
 let let_expression_simple_binding_converter (name, expr) = LetSimple (name, expr)
 let let_expression_function_binding_converter (name, args, expr) = LetFunction (name, args, expr)
 
+(* fix fixes everything *)
+type fix 'f = Fix of 'f string (fix 'f)
+let unfix (Fix x) = x
+
 (* term type comes from ast.ml *)
-let expression_basic_identifier_converter name = Identifier name
+let expression_basic_identifier_converter name = Fix (Identifier name)
 let expression_sequence_converter xs = ListCons xs
 let expression_table_converter kvs = RecordCons kvs
 (*let expression_anonymous_function_converter (args, expr) = ExprFunctionAnon (args, expr)
