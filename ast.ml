@@ -26,6 +26,11 @@ type term 'id 'term =
 | Conditional of 'term * 'term * 'term
 | Hole of 'id
 
+(* TODO: uhhh what about functions? *)
+(* TODO: fix incompatibilities *)
+DERIVE_BATTERIES term ('id, 'term) LiteralBool(b) StringCons(start, splices) ListCons(xs) RecordCons(kvs) Identifier(name) Application(f, args) PartialApplication(f, args) InfixOp(l, op, r) PrefixOp(op, r) SuffixOp(l, op) PartialInfixOp(l, op, r) PartialPrefixOp(op, r) PartialSuffixOp(l, op) Abstraction(ids, term) LetBinding(name, v, body) Conditional(c, t, f) Hole(id)
+(* BracketOp(id) AsBinding(term id typ) *)
+
 instance functor (term 'id)
   let f <$> t = match t with
   | LiteralBool b -> LiteralBool b

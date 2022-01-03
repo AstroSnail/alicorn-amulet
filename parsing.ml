@@ -1,5 +1,6 @@
 open import "prelude.ml"
 open import "./parsing/lpeg.ml"
+open import "./ast-temp.ml"
 
 let opt pat = pat `rep` -1
 let neg pat = pat `alt` one (* stub *)
@@ -74,7 +75,6 @@ let assignment_shenanigans = p "=" (* stub *)
 (* Types of things *)
 (* "You... do realize that the type system is meant to constrain values, right?"
  * "No. No, that doesn't sound right." *)
-(* TODO: should basic id have its own type? *)
 
 (* magic *)
 type fix 'f = Fix of 'f (fix 'f)
@@ -92,22 +92,13 @@ DERIVE_BATTERIES let_expression_binding_type ('expr) LetSimple(name expr) LetFun
 let let_expression_simple_binding_converter (name, expr) = LetSimple (name, expr)
 let let_expression_function_binding_converter (name, args, expr) = LetFunction (name, args, expr)
 
-(* is this how type recursion works? *)
-(* TODO: how to enforce 'expr == expression_type? *)
-type expression_type 'expr =
-  | ExprId of string
-  | ExprSequence of list 'expr
-  | ExprTable of list (string * 'expr)
-  | ExprFunctionAnon of list string * 'expr
-  | ExprFunctionCall of string * list 'expr
-  | ExprLet of let_expression_type * let_expression_binding_type 'expr * 'expr
-DERIVE_BATTERIES expression_type ('expr) ExprId(name) ExprSequence(xs) ExprTable(kvs) ExprFunctionAnon(args expr) ExprFunctionCall(name args) ExprLet(kind binding expr)
-let expression_basic_identifier_converter name = ExprId name
-let expression_sequence_converter xs = ExprSequence xs
-let expression_table_converter kvs = ExprTable kvs
-let expression_anonymous_function_converter (args, expr) = ExprFunctionAnon (args, expr)
+(* term type comes from ast.ml *)
+let expression_basic_identifier_converter name = Identifier name
+let expression_sequence_converter xs = ListCons xs
+let expression_table_converter kvs = RecordCons kvs
+(*let expression_anonymous_function_converter (args, expr) = ExprFunctionAnon (args, expr)
 let expression_function_call_converter (name, args) = ExprFunctionCall (name, args)
-let expression_let_expression_converter (kind, binding, expr) = ExprLet (kind, binding, expr)
+let expression_let_expression_converter (kind, binding, expr) = LetBinding (kind, binding, expr)*)
 
 (* Non-recursive parsers *)
 
@@ -273,15 +264,15 @@ let suffix_operator_identifier_parser_tests = [
 ]
 
 let expression_parser_tests = [
-  ("[a,b,c]", Some (ExprSequence [ExprId "a", ExprId "b", ExprId "c"])),
-  ("[ a, b, c ]", Some (ExprSequence [ExprId "a", ExprId "b", ExprId "c"])),
-  ("{a=b,c=d,e=f}", Some (ExprTable [("a", ExprId "b"), ("c", ExprId "d"), ("e", ExprId "f")])),
-  ("{ a=b, c = d, e= f }", Some (ExprTable [("a", ExprId "b"), ("c", ExprId "d"), ("e", ExprId "f")])),
-  ("fun(a, b, c) = body", Some (ExprFunctionAnon (["a", "b", "c"], ExprId "body"))),
+  ("[a,b,c]", Some (ListCons [Identifier "a", Identifier "b", Identifier "c"])),
+  ("[ a, b, c ]", Some (ListCons [Identifier "a", Identifier "b", Identifier "c"])),
+  ("{a=b,c=d,e=f}", Some (RecordCons [(Identifier "a", Identifier "b"), (Identifier "c", Identifier "d"), (Identifier "e", Identifier "f")])),
+  ("{ a=b, c = d, e= f }", Some (RecordCons [(Identifier "a", Identifier "b"), (Identifier "c", Identifier "d"), (Identifier "e", Identifier "f")]))
+  (*("fun(a, b, c) = body", Some (ExprFunctionAnon (["a", "b", "c"], ExprId "body"))),
   ("foo(a, b, c)", Some (ExprFunctionCall ("foo", [ExprId "a", ExprId "b", ExprId "c"]))),
   ("let name = expr in body", Some (ExprLet (Let, LetSimple ("name", ExprId "expr"), ExprId "body"))),
   ("let rec name = expr in body", Some (ExprLet (LetRec, LetSimple ("name", ExprId "expr"), ExprId "body"))),
-  ("let foo(a, b, c) = foocode in body", Some (ExprLet (Let, LetFunction ("foo", ["a", "b", "c"], ExprId "foocode"), ExprId "body")))
+  ("let foo(a, b, c) = foocode in body", Some (ExprLet (Let, LetFunction ("foo", ["a", "b", "c"], ExprId "foocode"), ExprId "body")))*)
 ]
 
 let parser_test parser (test, expected) =
