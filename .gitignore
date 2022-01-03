@@ -1,0 +1,3 @@
+*.lua
+/parsing-temp.ml
+/lsp.log
