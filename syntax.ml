@@ -148,5 +148,4 @@ let run_tests (parser, tests) =
   let results = parser_test parser <$> tests
   let fails = filter_failing results
   map print fails
-(* TODO: impl show for term *)
-(*let _ = run_tests (parser, parser_tests)*)
+let _ = run_tests (parser, parser_tests)
