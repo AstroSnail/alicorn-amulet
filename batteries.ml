@@ -53,7 +53,9 @@ let keysym str = ws_after (p str)
 let keyword str = wp_after (p str)
 let endword str = nl_after (p str)
 
-let types_parser = keysym "(" `seq` collect_list (ws_after (c alnump) `rep` 1) `seq` keysym ")" `act` WithTypes `alt` cc NoTypes
+let types_type1_parser = keysym "(" `seq` collect_list (ws_after (c alnump) `rep` 1) `seq` keysym ")"
+let types_type2_parser = keysym "`" `seq` collect_list (c (star `excl` p "`" `rep` 1)) `seq` keysym "`"
+let types_parser = types_type1_parser `alt` types_type2_parser `act` WithTypes `alt` cc NoTypes
 
 let alts_parser = collect_list (collect_tuple (c alnump `seq` types_parser) `rep` 1)
 
