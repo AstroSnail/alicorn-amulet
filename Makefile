@@ -3,3 +3,8 @@ syntax.lua: syntax.ml
 
 batteries.lua: batteries.ml
 	amc compile batteries.ml -o batteries.lua
+
+clean:
+	rm *.lua
+
+PHONY: clean
