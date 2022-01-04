@@ -4,7 +4,7 @@ open import "./parsing/lpeg.ml"
 open import "./parsing/utils.ml"
 open import "./ast-temp.ml"
 open import "./result.ml"
-open import "./hylo.ml"
+open import "./hylo-temp.ml"
 open import "./utils.ml"
 module Map = import "data/map.ml"
 
@@ -97,7 +97,7 @@ let parser =
  *   tests that succeed but are questionable.
  * In some cases the last part is meant to highlight ambiguities in Open's description
  *)
-let parser_tests = [
+let parser_tests: list (string * option pterm) = [(*
   (* Basic identifiers *)
 
   ("list", Some (Identifier "list")),
@@ -138,7 +138,7 @@ let parser_tests = [
   (* don't forget the comma at the end of the previous line *)
   (*("let rec name = expr in body", Some (ExprLet (LetRec, LetSimple ("name", ExprId "expr"), ExprId "body"))),*)
   (*("let foo(a, b, c) = foocode in body", Some (ExprLet (Let, LetFunction ("foo", ["a", "b", "c"], ExprId "foocode"), ExprId "body")))*)
-]
+*)]
 
 let parser_test parser (test, expected) =
   let got = parse (parser `seq` eof) test

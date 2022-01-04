@@ -2,6 +2,7 @@
 open import "prelude.ml"
 
 type fix 'f = Fix of 'f (fix 'f)
+#DERIVE_BATTERIES fix ('f) Fix(f) #END_DERIVE_BATTERIES
 let unfix (Fix x) = x
 
 type coalgebra 'f 'a <- functor 'f => 'a -> 'f 'a
