@@ -37,28 +37,31 @@ let batteries_inserter (type_name, types, alts) =
        figure_eq_alts_out alts ^
         "    | _ -> false\n"
 
+let excl pat unless = neg unless `seq` pat
 let alnum = r "09" `alt` r "AZ" `alt` r "az" `alt` s "'_"
 let alnump = alnum `rep` 1
-let printable = r " ~"
-let printables = printable `rep` 0
 let nl = p "\n"
-let w = s " ,"
+let nl_after pat = pat `seq` nl
+let not_nl = star `excl` nl
+let not_nls = not_nl `rep` 0
+let w = s "\t\n\r ,"
 let ws = w `rep` 0
 let wp = w `rep` 1
 let ws_after pat = pat `seq` ws
 let wp_after pat = pat `seq` wp
 let keysym str = ws_after (p str)
 let keyword str = wp_after (p str)
+let endword str = nl_after (p str)
 
 let types_converter ts = WithTypes ts
 let types_parser = keysym "(" `seq` collect_list (ws_after (c alnump) `rep` 1) `seq` keysym ")" `act` types_converter `alt` cc NoTypes
 
 let alts_parser = collect_list (ws_after (collect_tuple (c alnump `seq` types_parser)) `rep` 1)
 
-let battery_spec_parser = keyword "DERIVE_BATTERIES" `seq` collect_tuple (wp_after (c alnump) `seq` types_parser `seq` alts_parser) `seq` nl
+let battery_spec_parser = keyword "#DERIVE_BATTERIES" `seq` collect_tuple (wp_after (c alnump) `seq` types_parser `seq` alts_parser) `seq` endword "#END_DERIVE_BATTERIES"
 let batteries_included_parser = battery_spec_parser `act` batteries_inserter
 
-let uninteresting_line_parser = c (printables `seq` nl)
+let uninteresting_line_parser = c (nl_after not_nls)
 
 let line_parser = batteries_included_parser `alt` uninteresting_line_parser
 let lines_parser = collect_list (line_parser `rep` 0)
