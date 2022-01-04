@@ -2,7 +2,7 @@
 open import "prelude.ml"
 open import "./parsing/lpeg.ml"
 open import "./parsing/utils.ml"
-open import "./ast-temp.ml"
+open import "./ast.ml"
 open import "./result.ml"
 open import "./hylo.ml"
 open import "./utils.ml"
