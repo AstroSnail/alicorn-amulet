@@ -19,6 +19,7 @@ let rec intercalate s ss = match ss with
 | Nil -> ""
 
 let sep_commas xs = intercalate ", " xs
+let or_blank x = x `or_default` "_"
 
 let matchingbracket = Map.from_list [("(|", "|)"), ("[|", "|]"), ("{|", "|}")]
 
@@ -28,7 +29,10 @@ let showterm = cata (function
   | ListCons ts -> "[" ^ sep_commas ts ^ "]"
   | RecordCons tts -> "{" ^ (map (fun (a, b) -> a ^ " = " ^ b) tts |> sep_commas) ^ "}"
   | Identifier name -> show name
-  | Application (f, xs) -> f ^ "(" ^ sep_commas (map (`or_default` "_") xs) ^ ")"
+  | Application (Identifier (IdentifierInfix f), [l, r]) -> "(" ^ or_blank l ^ f ^ or_blank r ^ ")"
+  | Application (Identifier (IdentifierPrefix f), [r]) -> "(" ^ f ^ or_blank r ^ ")"
+  | Application (Identifier (IdentifierSuffix f), [l]) -> "(" ^ or_blank l ^ f ^ ")"
+  | Application (f, xs) -> f ^ "(" ^ sep_commas (map or_blank xs) ^ ")"
   | Abstraction (ids, body) -> "fun (" ^ sep_commas ids ^ ") = " ^ body ^ ")"
   | LetBinding (id, def, body) -> "let " ^ id ^ " = " ^ def ^ " in " ^ body
   | LetRecBinding (id, def, body) -> "let rec " ^ id ^ " = " ^ def ^ " in " ^ body
